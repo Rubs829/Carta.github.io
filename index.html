@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Carta para Camila</title>
+  <meta name="format-detection" content="telephone=no" />
+  <style>
+    * { box-sizing:border-box; }
+    html, body { margin:0; padding:0; height:100%; }
+    body {
+      font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+      background: linear-gradient(135deg, #ffbdd9 0%, #ff6fa7 50%, #ff7cae 100%);
+      color:#1f1f1f;
+      overflow:hidden;
+      -webkit-text-size-adjust:100%;
+      padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+    }
+    :root {
+      --primary:#ff4d88;
+      --card-bg:#fffafc;
+      --radius:20px;
+      --shadow:0 30px 60px -10px rgba(255,77,136,0.3),0 16px 40px -4px rgba(0,0,0,0.1);
+    }
+
+    /* Loader */
+    #loader {
+      position: fixed;
+      inset:0;
+      background:#000000;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      padding:0 16px;
+      z-index:1000;
+      text-align:center;
+    }
+    #loader h1 {
+      font-size:1.5rem;
+      font-weight:600;
+      margin-bottom:8px;
+      color: var(--primary);
+      text-shadow: 0 0 6px rgba(255,77,136,0.7);
+    }
+    .progress-wrapper {
+      width:100%;
+      max-width:300px;
+      background:#f2e6f3;
+      border-radius:999px;
+      overflow:hidden;
+      box-shadow: inset 0 0 6px rgba(255,77,136,0.2);
+    }
+    .progress-bar {
+      width:0%;
+      height:10px;
+      background: linear-gradient(135deg,#ff9ecf 0%, var(--primary) 100%);
+      transition: width .2s ease;
+    }
+
+    /* Corazones */
+    .corazones {
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      z-index:1;
+      overflow:hidden;
+    }
+    .corazon {
+      position:absolute;
+      font-size:1.6rem;
+      opacity:.75;
+      animation:flotar 9s linear infinite;
+      filter: drop-shadow(0 6px 14px rgba(255,77,136,0.4));
+      will-change:transform,opacity;
+    }
+    @keyframes flotar {
+      0% { transform: translateY(110vh) scale(1); opacity:0; }
+      45% { opacity:.9; }
+      100% { transform: translateY(-15vh) scale(1.1); opacity:0; }
+    }
+
+    /* Layout */
+    .envoltorio {
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      padding:16px;
+      min-height:100vh;
+      position:relative;
+      z-index:2;
+    }
+
+    /* Carta */
+    .tarjeta {
+      position: relative;
+      width:100%;
+      max-width:420px;
+      background: var(--card-bg);
+      border-radius:24px;
+      padding:20px 18px 16px;
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      transition: transform .45s cubic-bezier(.2,.1,.1,1), opacity .4s ease;
+      opacity:0;
+      transform: translateY(18px) scale(.95);
+      border:1px solid rgba(255,77,136,0.08);
+    }
+    .tarjeta.visible {
+      opacity:1;
+      transform: translateY(0) scale(1);
+    }
+
+    .label {
+      position:absolute;
+      top:12px;
+      left:50%;
+      transform:translateX(-50%);
+      background: linear-gradient(90deg,#ff9ecf,#ff4d88);
+      padding:5px 14px;
+      border-radius:999px;
+      font-size:.55rem;
+      letter-spacing:1px;
+      color:#fff;
+      text-transform:uppercase;
+      font-weight:700;
+      box-shadow:0 10px 30px rgba(255,77,136,0.3);
+    }
+
+    .header {
+      text-align:center;
+      padding-top:6px;
+    }
+    .header h2 {
+      font-size:1.55rem;
+      margin-bottom:4px;
+      background: linear-gradient(135deg,#ff6fa7 0%,#ff4d88 100%);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      letter-spacing:.5px;
+    }
+    .header p {
+      font-size:.85rem;
+      color:#555;
+      margin-top:2px;
+    }
+
+    .contenido {
+      margin-top:6px;
+      flex:1;
+      overflow:auto;
+      background: rgba(250,245,253,1);
+      border:1px solid rgba(230,218,235,0.9);
+      border-radius:12px;
+      padding:14px 16px;
+      font-size:.95rem;
+      line-height:1.5;
+      white-space:pre-wrap;
+      position:relative;
+      -webkit-overflow-scrolling:touch;
+      backdrop-filter: blur(1px);
+    }
+    .contenido::before {
+      content:"";
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      background: radial-gradient(circle at 20% 30%, rgba(255,255,255,0.35) 0%, transparent 60%);
+      mix-blend-mode: lighten;
+      border-radius:12px;
+    }
+
+    .firma {
+      margin-top:12px;
+      text-align:right;
+      font-weight:600;
+      font-size:.95rem;
+    }
+
+    .slider-wrapper {
+      margin-top:12px;
+      position:relative;
+      height:350px;
+      border-radius:14px;
+      overflow:hidden;
+      background:#f7eef6;
+      border:1px solid rgba(230,218,235,0.9);
+      touch-action: pan-y;
+    }
+    .slider {
+      position:relative;
+      width:100%;
+      height:100%;
+    }
+    .slider img {
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      opacity:0;
+      transition:opacity .8s ease-in-out;
+      border-radius:10px;
+    }
+    .slider img.visible {
+      opacity:1;
+    }
+
+    /* Botón centrado sobre pantalla antes de abrir */
+    .btn-wrapper {
+      position: fixed;
+      inset:0;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      pointer-events:none;
+      z-index:10;
+    }
+    .boton-abrir {
+      background: var(--primary);
+      color:#fff;
+      border:none;
+      padding:16px 34px;
+      border-radius:999px;
+      font-weight:700;
+      font-size:1rem;
+      cursor:pointer;
+      letter-spacing:.6px;
+      box-shadow:0 24px 60px rgba(255,77,136,0.4);
+      pointer-events:auto;
+      transition: transform .2s ease, opacity .3s ease;
+      display:flex;
+      gap:8px;
+      align-items:center;
+    }
+    .boton-abrir:active { transform:scale(.95); }
+    .boton-abrir.hidden { opacity:0; pointer-events:none; }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { animation:none !important; transition:none !important; }
+    }
+    @media (max-width:360px){
+      .header h2 { font-size:1.4rem; }
+      .boton-abrir { padding:14px 28px; font-size:.95rem; }
+    }
+  </style>
+</head>
+<body>
+  <!-- loader -->
+  <div id="loader" aria-label="Cargando carta">
+    <h1>Preparando tu carta...</h1>
+    <div class="progress-wrapper" aria-hidden="true">
+      <div class="progress-bar" id="progress-bar"></div>
+    </div>
+  </div>
+
+  <!-- corazones -->
+  <div class="corazones" aria-hidden="true">
+    <div class="corazon" style="left:8%; animation-delay:0s;">❤️</div>
+    <div class="corazon" style="left:28%; animation-delay:1.2s; font-size:2rem;">💖</div>
+    <div class="corazon" style="left:52%; animation-delay:2.4s;">💘</div>
+    <div class="corazon" style="left:72%; animation-delay:3.6s; font-size:1.8rem;">💕</div>
+    <div class="corazon" style="left:88%; animation-delay:4.8s;">💗</div>
+  </div>
+
+  <!-- carta -->
+  <div class="envoltorio">
+    <div class="tarjeta" id="tarjeta" aria-live="polite">
+      <div class="label">Carta</div>
+      <div class="header">
+        <h2>Para mi princesa</h2>
+        <p>Feliz Cumple mi vida ❤️</p>
+      </div>
+      <div class="contenido" aria-label="Texto de la carta">
+Querida Camila
+
+Desde el primer momento en que te vi supe que había algo especial, tus risas empezaron a iluminan mis días y tus ojos hermosos que me enamorar cada que los veo, amo demasiado la forma en la que nos vemos. No hay palabra que alcance para agradecerte por tu ternura y incluso en los momentos más simples los conviertes en los mejores dias con tu compañia.
+
+Cada recuerdo contigo es un tesoro y lo seguira siendo y quiero que sepas que siempre te apoyare en cualquier momentos, me importa demasido el como te sientes, lo que piensas y sabes que simepre te estare escuchando por que jamas te dejare sola ya que eres lo mas importante para mi.
+
+Gracias por cada gesto, por cada abrazo, quisiera seguir construyendo momentos a tu lado, celebrando lo que somos y soñando con lo que nos espera juntos mi vida.
+
+      </div>
+      <div class="firma">Con amor, Ruben</div>
+
+      <div class="slider-wrapper" aria-label="Galería de fotos">
+        <div class="slider" id="slider">
+          <img src="foto1.jpg" class="visible" alt="Foto 1" />
+          <img src="foto2.jpg" alt="Foto 2" />
+          <img src="foto3.jpg" alt="Foto 3" />
+          <img src="foto4.jpg" alt="Foto 4" />
+          <img src="foto5.jpg" alt="Foto 5" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- botón centrado -->
+  <div class="btn-wrapper">
+    <button class="boton-abrir" id="botonAbrir" aria-label="Abrir carta"> Abrir Carta 💌</button>
+  </div>
+
+  <script>
+    // Loader (8 segundos)
+    const loader = document.getElementById("loader");
+    const progressBar = document.getElementById("progress-bar");
+    let tick = 0;
+    const max = 80;
+    const loaderInterval = setInterval(() => {
+      tick++;
+      const pct = Math.min(100, (tick / max) * 100);
+      progressBar.style.width = pct + "%";
+      if (tick >= max) {
+        clearInterval(loaderInterval);
+        loader.style.transition = "opacity .4s ease";
+        loader.style.opacity = "0";
+        setTimeout(()=> loader.remove(), 500);
+      }
+    }, 100);
+
+    // Apertura de carta y esconder botón
+    const boton = document.getElementById("botonAbrir");
+    const tarjeta = document.getElementById("tarjeta");
+    boton.addEventListener("click", () => {
+      tarjeta.classList.add("visible");
+      boton.classList.add("hidden");
+    });
+
+    // Slider automático cada 4 segundos con pausa y swipe
+    const imgs = document.querySelectorAll("#slider img");
+    let idx = 0;
+    let sliderTimer = setInterval(nextImage, 4000);
+    function nextImage() {
+      imgs.forEach(i => i.classList.remove("visible"));
+      idx = (idx + 1) % imgs.length;
+      imgs[idx].classList.add("visible");
+    }
+    const sliderEl = document.getElementById("slider");
+    sliderEl.addEventListener("mouseenter", () => clearInterval(sliderTimer));
+    sliderEl.addEventListener("mouseleave", () => {
+      sliderTimer = setInterval(nextImage, 4000);
+    });
+    sliderEl.addEventListener("touchstart", () => clearInterval(sliderTimer));
+    sliderEl.addEventListener("touchend", () => {
+      sliderTimer = setInterval(nextImage, 4000);
+    });
+
+    // Swipe manual
+    let startX = null;
+    sliderEl.addEventListener("touchstart", e => {
+      startX = e.touches[0].clientX;
+    });
+    sliderEl.addEventListener("touchend", e => {
+      if (startX === null) return;
+      const dx = e.changedTouches[0].clientX - startX;
+      if (Math.abs(dx) > 30) {
+        if (dx > 0) idx = (idx - 1 + imgs.length) % imgs.length;
+        else idx = (idx + 1) % imgs.length;
+        imgs.forEach(i => i.classList.remove("visible"));
+        imgs[idx].classList.add("visible");
+      }
+      startX = null;
+    });
+
+    // Corazones dinámicos
+    function crearCorazon() {
+      const cont = document.querySelector(".corazones");
+      const h = document.createElement("div");
+      h.className = "corazon";
+      const shapes = ["❤️","💖","💘","💕","💗"];
+      h.textContent = shapes[Math.floor(Math.random()*shapes.length)];
+      h.style.left = Math.random()*100 + "%";
+      h.style.fontSize = (1 + Math.random()*1.2) + "rem";
+      h.style.animationDuration = (7 + Math.random()*3) + "s";
+      cont.appendChild(h);
+      setTimeout(()=> h.remove(), 11000);
+    }
+    // ráfaga inicial de corazones
+    for (let i = 0; i < 20; i++) {
+      setTimeout(crearCorazon, i * 150);
+    }
+    // luego creación continua frecuente
+    setInterval(crearCorazon, 600);
+    setInterval(crearCorazon, 2800);
+  </script>
+</body>
+</html>
